@@ -1,5 +1,12 @@
 <template>
   <UContainer class="mt-4">
+    <UNotification
+      v-if="errorMessage"
+      :description="errorMessage"
+      :id="2"
+      :timeout="5000"
+      title="Erro"
+    />
     <UCard v-if="idea">
       <template #header>
         <span>{{ timeAgo(idea.created_at) }}</span>
@@ -10,38 +17,41 @@
         <div class="flex justify-between gap-6 mt-4">
           <div class="w-full">
             <UButton 
-            block
-            icon="i-fluent-emoji-exploding-head"
-            size="sm"
-            color="primary"
-            variant="soft"
-            :label="`Genial ${idea.num_genius}`"
-            :trailing="false"
+              block
+              icon="i-fluent-emoji-exploding-head"
+              size="sm"
+              color="primary"
+              variant="soft"
+                :label="`Genial ${idea.num_genius}`"
+              :trailing="false"
+              :disabled="currentVote === 'genius'"
+              @click="toggleVote('genius')"
             />
           </div>
           <div class="w-full">
             <UButton 
-            block
-            icon="i-fluent-emoji-face-screaming-in-fear"
-            size="sm"
-            color="primary"
-            variant="soft"
-            :label="`Estupida ${idea.num_stupid}`"
-            :trailing="false"
+              block
+              icon="i-fluent-emoji-face-screaming-in-fear"
+              size="sm"
+              color="primary"
+              variant="soft"
+              :label="`Estúpida ${idea.num_stupid}`"
+              :trailing="false"
+              :disabled="currentVote === 'stupid'"
+              @click="toggleVote('stupid')"
             />
           </div>
         </div>
       </template>
     </UCard>
-    <div v-else>
-      <p>Carregando...</p>
-    </div>
   </UContainer>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { timeAgo } from '@/utils/timeUtils';
+import { ideaService } from '@/services/ideaService';
 
 interface Idea {
   id: number;
@@ -58,36 +68,43 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const idea = ref<Idea | null>(null);
+    const errorMessage = ref<string | null>(null);
+    const currentVote = ref<'genius' | 'stupid' | null>(null);
 
     const fetchIdea = async () => {
-      const slug = route.params.slug; // Obtém o slug da rota
+      const slug = route.params.slug as string;
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/ideas/${slug}`);
-        if (!response.ok) {
-          throw new Error('Erro ao buscar a ideia');
+        idea.value = await ideaService.getIdeaBySlug(slug);
+        if (!idea.value) {
+          throw new Error('Ideia não encontrada');
         }
-        const data = await response.json();
-        idea.value = data; // Supondo que a resposta contenha a ideia diretamente
+        errorMessage.value = null; 
       } catch (error) {
         console.error('Error fetching idea:', error);
+        errorMessage.value = 'Ocorreu um problema ao buscar a ideia. Tente novamente mais tarde.';
       }
     };
 
-    const timeAgo = (date: string): string => {
-      const now = new Date();
-      const seconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
-      let interval = Math.floor(seconds / 31536000);
-
-      if (interval > 1) return `${interval} anos atrás`;
-      interval = Math.floor(seconds / 2592000);
-      if (interval > 1) return `${interval} meses atrás`;
-      interval = Math.floor(seconds / 86400);
-      if (interval > 1) return `${interval} dias atrás`;
-      interval = Math.floor(seconds / 3600);
-      if (interval > 1) return `${interval} horas atrás`;
-      interval = Math.floor(seconds / 60);
-      if (interval > 1) return `${interval} minutos atrás`;
-      return `${seconds} segundos atrás`;
+    const toggleVote = async (type: 'genius' | 'stupid') => {
+      const slug = route.params.slug as string;
+      try {
+        if (currentVote.value === type) {
+          // Se já votou na mesma opção, desmarcar
+          await ideaService.unrateIdea(slug, type);
+          currentVote.value = null;
+        } else {
+          // Se votou em uma opção diferente, mudar o voto
+          if (currentVote.value) {
+            await ideaService.unrateIdea(slug, currentVote.value);
+          }
+          // Votar na nova opção
+          await ideaService.rateIdea(slug, type);
+          currentVote.value = type;
+        }
+      } catch (error) {
+        console.error('Error toggling vote:', error);
+        errorMessage.value = 'Ocorreu um problema ao registrar seu voto. Tente novamente mais tarde.';
+      }
     };
 
     onMounted(() => {
@@ -97,6 +114,9 @@ export default defineComponent({
     return {
       idea,
       timeAgo,
+      errorMessage,
+      currentVote,
+      toggleVote,
     };
   },
 });
