@@ -1,30 +1,48 @@
 <template>
-    <UContainer class="scroll-smooth">
-      <UCard v-for="idea in ideas" :key="idea.id" class="my-5 hover:cursor-pointer hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-1000 delay-100">
-          <h1 class="text-xl font-semibold">
-            {{ idea.name }}
-          </h1>
-          <div class="flex justify-end gap-4">
-            <span class="flex gap-2" >
-              <UIcon name="i-fluent-emoji-exploding-head" class="w-6 h-6"/> 
-              {{ idea.num_genius }}
-            </span>
-            <span class="flex gap-2">
-              <UIcon name="i-fluent-emoji-face-screaming-in-fear" class="w-6 h-6"/> 
-              {{ idea.num_stupid }}
-            </span>
-          </div>
-      </UCard>
-    </UContainer>
+  <UContainer class="scroll-smooth">
+    <UCard
+      v-for="idea in ideas"
+      :key="idea.id"
+      class="my-5 hover:cursor-pointer hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-1000 delay-100"
+    >
+      <NuxtLink :to="`/idea/${idea.slug}`" class="block">
+        <h1 class="text-xl font-semibold">
+          {{ idea.name }}
+        </h1>
+        <div class="flex justify-end gap-6">
+          <span>
+            Criado {{ timeAgo(idea.created_at) }}
+          </span>
+          <span class="flex gap-2" title="Número de pessoas que acharam a ideia genial">
+            <UIcon name="i-fluent-emoji-exploding-head" class="w-6 h-6" />
+            {{ idea.num_genius }}
+          </span>
+          <span class="flex gap-2" title="Número de pessoas que acharam a ideia estúpida">
+            <UIcon name="i-fluent-emoji-face-screaming-in-fear" class="w-6 h-6" />
+            {{ idea.num_stupid }}
+          </span>
+        </div>
+      </NuxtLink>
+    </UCard>
+  </UContainer>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 
+interface Idea {
+  id: number;
+  name: string;
+  slug: string;
+  num_genius: number;
+  num_stupid: number;
+  created_at: string;
+}
+
 export default defineComponent({
   name: 'IdeasPage',
   setup() {
-    const ideas = ref<any[]>([]);
+    const ideas = ref<Idea[]>([]);
 
     const fetchIdeas = async () => {
       try {
@@ -36,36 +54,31 @@ export default defineComponent({
       }
     };
 
+    const timeAgo = (date: string): string => {
+      const now = new Date();
+      const seconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
+      let interval = Math.floor(seconds / 31536000);
+
+      if (interval > 1) return `${interval} anos atrás`;
+      interval = Math.floor(seconds / 2592000);
+      if (interval > 1) return `${interval} meses atrás`;
+      interval = Math.floor(seconds / 86400);
+      if (interval > 1) return `${interval} dias atrás`;
+      interval = Math.floor(seconds / 3600);
+      if (interval > 1) return `${interval} horas atrás`;
+      interval = Math.floor(seconds / 60);
+      if (interval > 1) return `${interval} minutos atrás`;
+      return `${seconds} segundos atrás`;
+    };
+
     onMounted(() => {
       fetchIdeas();
     });
 
     return {
       ideas,
+      timeAgo,
     };
   },
 });
 </script>
-
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.ideas-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.idea-item {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin: 10px 0;
-  width: 300px;
-  text-align: center;
-}
-</style>

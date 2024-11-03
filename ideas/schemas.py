@@ -6,7 +6,12 @@ class CreateIdeaSchema(ModelSchema):
     model: Idea = Idea
     fields: list[str] = ['name', 'content']
     
-class IdeaSchema(ModelSchema):
+class ListAllIdeasSchema(ModelSchema):
   class Meta:
     model: Idea = Idea
-    fields: list[str] = ['id', 'name', 'content', 'num_genius', 'num_stupid', 'created_at', 'updated_at', 'status']
+    fields: list[str] = ['id', 'name', 'slug', 'num_genius', 'num_stupid', 'created_at']
+    
+class IdeaSchema(ModelSchema):
+    class Meta:
+        model = Idea
+        fields: list[str] = ['id', 'name', 'slug', 'content', 'num_genius', 'num_stupid', 'created_at', 'updated_at']

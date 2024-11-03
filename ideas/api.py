@@ -25,12 +25,22 @@ def create_idea(request, data: CreateIdeaSchema) -> Response:
     except Exception as e:
         return Response('An error occurred while creating the idea.', status=500).to_response()
 
-@ideas_router.get('/', response={200: list[IdeaSchema], 500: ErrorResponse})
+@ideas_router.get('/', response={200: list[ListAllIdeasSchema], 500: ErrorResponse})
 @paginate(PageNumberPagination, page_size=20)
 def list_ideas(request) -> Response:
     try:
         ideas: BaseManager[Idea] = Idea.objects.all()  
-        return [IdeaSchema.from_orm(idea) for idea in ideas]  
+        return [ListAllIdeasSchema.from_orm(idea) for idea in ideas]  
     
     except Exception as e:
         return Response('An error occurred while retrieving ideas.', status=500).to_response()
+    
+@ideas_router.get('/{slug}', response={200: IdeaSchema, 404: ErrorResponse, 500: ErrorResponse})
+def get_idea(request, slug: str) -> Response:
+    try:
+        idea: Idea = Idea.objects.get(slug=slug)
+        return IdeaSchema.from_orm(idea)
+    except Idea.DoesNotExist:
+        return Response('Idea not found', status=404).to_response()
+    except Exception as e:
+        return Response('An error occurred while retrieving the idea.', status=500).to_response()
