@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
@@ -9,6 +9,7 @@ from sqlalchemy.sql import select
 from inova_rank_api.database import get_session
 from inova_rank_api.models import User
 from inova_rank_api.schemas import (
+    FilterPage,
     Message,
     UserList,
     UserPublic,
@@ -60,8 +61,12 @@ def create_user(user: UserSchema, session: T_Session):
 
 
 @router.get('/', response_model=UserList)
-def read_users(session: T_Session, skip: int = 0, limit: int = 100):
-    users = session.scalars(select(User).offset(skip).limit(limit)).all()
+def read_users(
+    session: T_Session, filter_users: Annotated[FilterPage, Query()]
+):
+    users = session.scalars(
+        select(User).offset(filter_users.offset).limit(filter_users.limit)
+    ).all()
     return {'users': users}
 
 
