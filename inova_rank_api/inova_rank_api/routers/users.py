@@ -23,6 +23,7 @@ from inova_rank_api.security import (
 router = APIRouter(prefix='/users', tags=['users'])
 
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
@@ -87,7 +88,7 @@ def update_user(
     session: T_Session,
     user_id: int,
     user: UserSchema,
-    current_user: User = Depends(get_current_user),
+    current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(
@@ -116,7 +117,7 @@ def update_user(
 def delete_user(
     session: T_Session,
     user_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(
