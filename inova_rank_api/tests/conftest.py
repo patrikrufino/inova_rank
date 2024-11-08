@@ -10,7 +10,7 @@ from sqlalchemy.pool import StaticPool
 
 from inova_rank_api.app import app
 from inova_rank_api.database import get_session
-from inova_rank_api.models import User, table_registry
+from inova_rank_api.models import Category, User, table_registry
 from inova_rank_api.security import get_password_hash
 
 
@@ -107,3 +107,12 @@ def token(client, user):
         data={'username': user.email, 'password': user.clean_password},
     )
     return response.json()['access_token']
+
+
+@pytest.fixture
+def category(session):
+    category = Category(name='test')
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category

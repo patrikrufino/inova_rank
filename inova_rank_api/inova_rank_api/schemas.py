@@ -34,3 +34,19 @@ class TokenData(BaseModel):
 class FilterPage(BaseModel):
     offset: int = 0
     limit: int = 100
+
+
+class CategoryIn(BaseModel):
+    name: str
+
+
+class CategoryOut(BaseModel):
+    id: int
+    name: str
+
+
+class IdeaSchema(BaseModel):
+    author_id: int
+    title: str
+    content: str
+    category: int
