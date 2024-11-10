@@ -49,8 +49,22 @@ class CategoriesList(BaseModel):
     categories: list[CategoryOut]
 
 
-class IdeaSchema(BaseModel):
+class IdeaIn(BaseModel):
     author_id: int
     title: str
     content: str
-    category: int
+    category_id: int
+
+
+class IdeaOut(BaseModel):
+    id: int
+    author: UserPublic
+    title: str
+    content: str
+    category: CategoryOut
+    num_genius: int
+    num_stupid: int
+
+
+class IdeaList(BaseModel):
+    ideas: list[IdeaOut]
