@@ -45,6 +45,10 @@ class CategoryOut(BaseModel):
     name: str
 
 
+class CategoriesList(BaseModel):
+    categories: list[CategoryOut]
+
+
 class IdeaSchema(BaseModel):
     author_id: int
     title: str
