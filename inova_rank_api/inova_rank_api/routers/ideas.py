@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
 from inova_rank_api.database import get_session
-from inova_rank_api.models import Category, Idea, User
+from inova_rank_api.models import Idea, User
 from inova_rank_api.schemas import FilterPage, IdeaIn, IdeaList, IdeaOut
 from inova_rank_api.security import get_current_user
 
