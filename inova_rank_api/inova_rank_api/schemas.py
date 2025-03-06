@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -64,6 +66,7 @@ class IdeaOut(BaseModel):
     category: CategoryOut
     num_genius: int
     num_stupid: int
+    created_at: datetime
 
 
 class IdeaList(BaseModel):

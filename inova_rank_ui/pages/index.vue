@@ -14,12 +14,12 @@
         :key="idea.id"
         class="my-5 hover:cursor-pointer hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-1000 delay-100"
       >
-        <NuxtLink :to="`/idea/${idea.slug}`" class="block">
+        <NuxtLink :to="`/idea/${idea.id}`" class="block"> <!-- Alterado para usar idea.id -->
           <h1 class="text-xl font-semibold">
-            {{ idea.name }}
+            {{ idea.title }} <!-- Alterado para usar idea.title -->
           </h1>
           <div class="flex justify-end gap-6">
-            <span> Criado {{ timeAgo(idea.created_at) }} </span>
+            <span> Criado {{ timeAgo(idea.created_at) }} </span> <!-- Verifique se created_at existe -->
             <span
               v-for="(icon, index) in iconData"
               :key="index"
@@ -36,6 +36,7 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
 import { timeAgo } from "@/utils/timeUtils";
@@ -43,8 +44,8 @@ import { ideaService } from "@/services/ideaService";
 
 interface Idea {
   id: number;
-  name: string;
   slug: string;
+  title: string;
   num_genius: number;
   num_stupid: number;
   created_at: string;

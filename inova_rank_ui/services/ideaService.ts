@@ -1,7 +1,7 @@
 // services/ideaService.ts
-interface Idea {
+export interface Idea {
   id: number;
-  name: string;
+  title: string;
   slug: string;
   content: string;
   num_genius: number;
@@ -9,7 +9,7 @@ interface Idea {
   created_at: string;
 }
 
-const API_URL = "http://127.0.0.1:8000/api/ideas/";
+const API_URL = "http://127.0.0.1:8000/ideas/";
 
 export class IdeaService {
   async getAllIdeas(): Promise<Idea[]> {
@@ -19,7 +19,7 @@ export class IdeaService {
         throw new Error("Erro ao buscar ideias");
       }
       const data = await response.json();
-      return data.items;
+      return data.ideas;
     } catch (error) {
       console.error("Error fetching ideas:", error);
       throw error;

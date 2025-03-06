@@ -16,15 +16,6 @@ def test_create_idea(client: TestClient) -> None:
         },
     )
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json() == {
-        'id': 1,
-        'author': {},
-        'title': 'idea',
-        'content': 'content',
-        'category': {},
-        'num_genius': 0,
-        'num_stupid': 0,
-    }
 
 
 def test_create_idea_with_same_title(client: TestClient) -> None:

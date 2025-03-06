@@ -1,4 +1,3 @@
-import select
 from http import HTTPStatus
 from typing import Annotated
 
@@ -51,3 +50,18 @@ def read_ideas(
         select(Idea).offset(filter_ideas.offset).limit(filter_ideas.limit)
     ).all()
     return {'ideas': ideas}
+
+
+@router.get('/{idea_id}', response_model=IdeaOut)
+def read_idea(idea_id: int, session: T_Session) -> IdeaOut:
+    idea: IdeaOut | None = session.scalar(
+        select(Idea).where(Idea.id == idea_id)
+    )
+
+    if not idea:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Idea not found',
+        )
+
+    return idea

@@ -86,3 +86,19 @@ def test_delete_category_with_not_found(
 ) -> None:
     response = client.delete('/categories/category')
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_get_category_id(client: TestClient, session: Session) -> None:
+    response: Response = client.post(
+        '/categories/',
+        json={
+            'name': 'category',
+        },
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    response = client.get('/categories/id/1')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': 1,
+        'name': 'category',
+    }

@@ -43,14 +43,14 @@ onMounted(() => {
 <template>
   <nav class="backdrop-blur-xl shadow-lg border-b dark:bg-gray-900/70 dark:border-gray-800 w-full top-0 sticky">
     <div class="mx-auto px-8 py-3 flex justify-between items-center">
-      <a href="#" class="text-xl font-bold">
+      <NuxtLink to="/" class="text-xl font-bold">
         <img 
           :src="(isDarkMode ? '/inova_rank-logo-dark.svg' : '/inova_rank-logo-light.svg')" 
           alt="Inova Rank Logo" 
-          class="h-8"
+          class="h-5"
         />
-      </a>
-      <div class="flex items-center space-x-1">
+      </NuxtLink>
+      <div class="flex items-center space-x-3">
         <button @click="toggleColorMode" class="p-2">
           <span v-if="isDarkMode">
             <UIcon name="i-fluent-emoji-full-moon" class="w-6 h-6" />
@@ -59,6 +59,8 @@ onMounted(() => {
             <UIcon name="i-fluent-emoji-sun" class="w-6 h-6" />
           </span>
         </button>
+        <NuxtLink to="/auth/login" class="font-semibold">Login</NuxtLink>
+        <NuxtLink to="/auth/register" class="font-semibold">Cadastrar</NuxtLink>
       </div>    
     </div>
     <!-- mobile menu -->  

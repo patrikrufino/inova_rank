@@ -10,7 +10,7 @@
     <UCard v-if="idea">
       <template #header>
         <span>{{ timeAgo(idea.created_at) }}</span>
-        <h1 class="text-2xl font-bold">{{ idea.name }}</h1>
+        <h1 class="text-2xl font-bold">{{ idea.title }}</h1>
       </template>
       <p class="mt-4">{{ idea.content }}</p>
       <template #footer>
@@ -55,7 +55,7 @@ import { ideaService } from '@/services/ideaService';
 
 interface Idea {
   id: number;
-  name: string;
+  title: string;
   slug: string;
   content: string;
   num_genius: number;

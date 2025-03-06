@@ -83,3 +83,38 @@ def delete_category(category_name: str, session: T_Session) -> dict[str, str]:
     session.delete(db_category)
     session.commit()
     return {'message': 'Category deleted successfully'}
+
+
+@router.put('/{category_name}', response_model=CategoryOut)
+def update_category(
+    category_name: str, category: CategoryIn, session: T_Session
+) -> CategoryOut:
+    db_category: Category | None = session.scalar(
+        select(Category).where(Category.name == category_name)
+    )
+
+    if not db_category:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Category not found',
+        )
+
+    db_category.name = category.name
+    session.commit()
+    session.refresh(db_category)
+    return db_category
+
+
+@router.get('/id/{category_id}', response_model=CategoryOut)
+def read_category_id(category_id: int, session: T_Session) -> CategoryOut:
+    db_category: Category | None = session.scalar(
+        select(Category).where(Category.id == category_id)
+    )
+
+    if not db_category:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Category not found',
+        )
+
+    return db_category
