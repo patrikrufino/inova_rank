@@ -1,13 +1,13 @@
 <template>
     <UContainer class="scroll-smooth flex flex-col justify-center items-center min-h-screen">
-        <img src="/login_hero.svg" alt="Homem sentado realizando login" class="w-48 mb-5"/>
+        <img src="/login_hero.svg" alt="Homem sentado realizando login" class="w-48 mb-5" />
         <UCard
             class="w-full md:max-w-1/2 my-5 hover:cursor-pointer hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-1000 delay-100 max-w-lg mx-auto">
 
             <template #header>
                 <h1 class="text-2xl font-bold text-center">Login</h1>
             </template>
-            <UForm :schema="schema" :state="state" @submit="onSubmit" class="space-y-4">
+            <form @submit.prevent="onSubmit" class="space-y-4">
                 <UFormGroup label="Email" name="email">
                     <UInput v-model="state.email" placeholder="Digite seu email" size="lg" />
                 </UFormGroup>
@@ -22,6 +22,10 @@
                         </button>
                     </div>
                 </UFormGroup>
+                <transition name="fade">
+                    <UAlert v-show="showError" :title="'Erro ao realizar login'" :description="errorMessage" color="red"
+                        variant="subtle" />
+                </transition>
                 <UButton block
                     class="bg-primary hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
                     type="submit">
@@ -33,7 +37,7 @@
                         class="text-sm font-semibold text-primary hover:text-emerald-600 underline">Crie
                         sua conta aqui.</NuxtLink>
                 </div>
-            </UForm>
+            </form>
             <div class="text-center flex justify-center items-center mt-4">
                 <p class="mr-2 text-sm">Esqueceu sua senha?</p>
                 <NuxtLink to="/auth/forgot-password"
@@ -45,41 +49,59 @@
 </template>
 
 <script lang="ts">
-import * as v from 'valibot';
-import type { FormSubmitEvent } from '#ui/types';
-import { UForm } from '#build/components';
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import authService from '@/services/authService';
 
 export default {
     setup() {
-        const schema = v.object({
-            email: v.pipe(v.string(), v.email('Invalid email')),
-            password: v.pipe(v.string(), v.minLength(8, 'Must be at least 8 characters'))
-        });
-
-        type Schema = v.InferOutput<typeof schema>;
-
+        const router = useRouter();
         const state = reactive({
             email: '',
             password: ''
         });
 
         const passwordVisible = ref(false);
+        const showError = ref(false);
+        const errorMessage = ref('');
+        const isLoggedIn = ref(false);
+        const redirectCountdown = ref(5);
 
         const togglePasswordVisibility = () => {
             passwordVisible.value = !passwordVisible.value;
         };
 
-        async function onSubmit(event: FormSubmitEvent<Schema>) {
-            console.log(event.data);
+        async function onSubmit() {
+            console.log('Form submitted', state);
+            try {
+                await authService.login(state.email, state.password);
+                router.go(0);
+            } catch (error) {
+                console.error(error);
+                showError.value = true;
+                setTimeout(() => {
+                    showError.value = false;
+                }, 5000);
+                errorMessage.value = (error as any).message || 'Erro desconhecido';
+            }
         }
 
+        onMounted(async () => {
+            if (await authService.isLoggedIn()) {
+                isLoggedIn.value = true;
+                router.push('/');
+            }
+        });
+
         return {
-            schema,
             state,
             onSubmit,
             passwordVisible,
-            togglePasswordVisibility
+            togglePasswordVisibility,
+            showError,
+            errorMessage,
+            isLoggedIn,
+            redirectCountdown,
         };
     }
 }
