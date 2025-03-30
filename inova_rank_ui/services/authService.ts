@@ -70,7 +70,13 @@ const authService: AuthService = {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao fazer cadastro");
+        if (response.status === 409) {
+          throw new Error("Nome de usuário ou email já cadastrado");
+        }
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.detail?.[0]?.msg || "Erro ao fazer cadastro";
+        throw new Error(errorMessage);
       }
 
       return await response.json();
