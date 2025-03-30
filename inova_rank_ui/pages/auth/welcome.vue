@@ -11,7 +11,7 @@
               caixa e quer transformar o mundo com ideias incríveis. Aqui, a inovação não tem limites e a colaboração é a chave
               para o sucesso. Bora inovar juntos?
             </p>
-            <UButton variant="soft" class="mt-4 w-full" block to="/dashboard">Começar a Inovar</UButton>
+            <UButton variant="soft" class="mt-4 w-full" block to="/auth/login">Começar a Inovar</UButton>
           </UCard>
       </UContainer>
     </div>
